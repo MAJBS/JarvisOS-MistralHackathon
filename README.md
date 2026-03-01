@@ -107,6 +107,6 @@ To prevent memory duplication, the build.gradle.kts enforces useLegacyPackaging 
 
 The JarvisRagHeadlessService operates on a dedicated single-thread dispatcher (Executors.newSingleThreadExecutor().asCoroutineDispatcher()). Since the underlying ONNX runtime already parallelizes across all available CPU/NPU cores, this architectural decision prevents thread starvation and thermal throttling on mobile devices.
 
-Built with military rigor for the Mistral Worldwide Hackathon 2026.
+Mistral Worldwide Hackathon 2026.
 
 ***
