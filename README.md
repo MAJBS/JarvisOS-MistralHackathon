@@ -52,37 +52,35 @@ The architecture is strictly divided into a Native Hardware Layer (Edge) and a C
 |  • ElevenLabs API: Vocal synthesis with MD5 Audio Caching             |
 +-----------------------------------------------------------------------+
 
-#⚙️ Core Engineering & Architectural Modifications
+## ⚙️ Core Engineering & Architectural Modifications
 
 This project is not a standard API wrapper. It involves deep architectural modifications to the Android OS execution model:
-1. Zero-Allocation Acoustic Pipeline
+1. **Zero-Allocation Acoustic Pipeline**
 
 To allow continuous 24/7 listening without triggering Android's Garbage Collector (which causes audio stuttering), the system uses a pre-allocated AudioRingBuffer and a ByteBufferPool. Audio bytes are written in a circular loop and passed to the C++ layer via GetDirectBufferAddress. RAM usage remains static after boot.
-2. Biometric Diarization & Mean Pooling
+2. **Biometric Diarization & Mean Pooling**
 
 The system doesn't just transcribe; it knows who is speaking. Using an ECAPA-TDNN model, it extracts a 768-dimensional voice print. The SpeakerProfileRepository applies mathematical Mean Pooling (L2 Normalization) to dynamically update the user's biometric vector over time, calculating the Euclidean shift to detect acoustic anomalies.
-3. Deterministic GraphRAG (CozoDB + Datalog)
+3. **Deterministic GraphRAG (CozoDB + Datalog)**
 
 Memory is not stored in a flat vector database. We embedded CozoDB (a Datalog relational graph database) directly into the Rust core.
 When a query is made:
 
-    The query is vectorized via ONNX.
+    1. The query is vectorized via ONNX.
+    2. An HNSW index finds the closest semantic node.
+    3. A Datalog script traverses the `chunk_edges` table to retrieve the topological adjacent context (what was said immediately before and after the matched node).
 
-    An HNSW index finds the closest semantic node.
-
-    A Datalog script traverses the chunk_edges table to retrieve the topological adjacent context (what was said immediately before and after the matched node).
-
-4. CRAG (Corrective RAG) Firewall
+4. **CRAG (Corrective RAG) Firewall**
 
 The Rust core evaluates the cosine distance of the retrieved nodes. If the distance exceeds 0.85, the system assigns a NULA (Null) confidence level. The Kotlin orchestrator intercepts this and forces the Mistral API to admit a lack of local records, mathematically guaranteeing zero hallucinations regarding local data.
-5. Mistral API Integration (ministral-8b-latest)
+5. **Mistral API Integration (ministral-8b-latest)**
 
 For the reasoning phase, the structured context is routed to Mistral's official API. We specifically target ministral-8b-latest with a temperature of 0.3. This ensures ultra-low latency (crucial for voice assistants) and highly deterministic, technical responses based strictly on the injected GraphRAG context.
-6. ElevenLabs Smart Caching
+6. **ElevenLabs Smart Caching**
 
 To minimize latency and API costs, the ElevenLabsClient hashes the Mistral response (MD5). If the exact phrase was synthesized before, it bypasses the network call and plays the audio directly from the local cache via MediaPlayer.
 
-#🛠️ Build Instructions (Native Toolchain)
+## 🛠️ Build Instructions (Native Toolchain)
 
 Building this project requires a strict native toolchain setup due to the C++/Rust interoperability.
 
@@ -97,15 +95,15 @@ Prerequisites:
 Compiler Flags (Hardware Acceleration):
 The slm_engine and rag_engine modules are strictly locked to 64-bit (arm64-v8a) and utilize specific CXX flags to leverage ARM NEON and DotProd instructions:
 
- Cmake
-
+```cmake
 -DCMAKE_C_FLAGS="-march=armv8.2-a+dotprod -O3 -flto=thin -ffast-math -fno-finite-math-only"
+```
 
 
 JNI Packaging Rigor:
 To prevent memory duplication, the build.gradle.kts enforces useLegacyPackaging = true. This prevents .so libraries from being compressed inside the APK, allowing the OS to mmap them directly from storage.
 
-#🛡️ Thread Safety & Concurrency
+## 🛡️ Thread Safety & Concurrency
 
 The JarvisRagHeadlessService operates on a dedicated single-thread dispatcher (Executors.newSingleThreadExecutor().asCoroutineDispatcher()). Since the underlying ONNX runtime already parallelizes across all available CPU/NPU cores, this architectural decision prevents thread starvation and thermal throttling on mobile devices.
 
