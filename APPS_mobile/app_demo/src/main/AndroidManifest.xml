@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 🛡️ 1. DECLARACIÓN DEL PERMISO CRIPTOGRÁFICO (Firma) -->
+    <!-- Solo las apps firmadas con tu mismo Keystore podrán usar este permiso -->
+    <permission
+        android:name="jhonatan.s.jarvis.permission.SECURE_VOICE_IPC"
+        android:protectionLevel="signature" />
+
+    <!-- 🎤 PERMISOS DE HARDWARE -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- 🛡️ PERMISOS DE SERVICIO INMORTAL (Android 14 Compliant) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- 👁️ Permiso de visibilidad para encontrar al Cerebro (JarvisRag) -->
+    <queries>
+        <package android:name="jhonatan.s.jarvisrag" />
+        <intent>
+            <action android:name="jhonatan.s.jarvis.ACTION_BIND_SYNAPSE" />
+        </intent>
+    </queries>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@android:drawable/ic_btn_speak_now"
+        android:label="Demo Voice Engine"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 🧠 EL SERVICIO FANTASMA (Blindado con el permiso de firma) -->
+        <service
+            android:name=".VoiceHeadlessService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="jhonatan.s.jarvis.permission.SECURE_VOICE_IPC"
+            android:foregroundServiceType="microphone">
+            <intent-filter>
+                <action android:name="jhonatan.s.jarvis.ACTION_BIND_VOICE_ENGINE" />
+            </intent-filter>
+        </service>
+
+    </application>
+
+</manifest>

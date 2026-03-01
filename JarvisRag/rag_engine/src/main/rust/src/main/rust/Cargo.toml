@@ -1,0 +1,38 @@
+[package]
+name = "jarvis_rust_engine"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+jni = "0.21.1"
+tokenizers = "0.15.2"
+# Load Dynamic activado
+ort = { version = "2.0.0-rc.11", features = ["load-dynamic"] }
+memmap2 = "0.9.3" 
+cozo = { git = "https://github.com/cozodb/cozo", tag = "v0.7.5", default-features = false, features = ["storage-sqlite", "compact"] }
+
+lazy_static = "1.4.0"
+parking_lot = "0.12.1"
+
+# Nuevas dependencias de Logging
+android_logger = "0.13"
+log = "0.4"
+
+# El único parche permitido es este:
+[patch.crates-io]
+graph_builder = { path = "./local_deps/graph_builder_fix" }
+
+
+
+# --- NUEVO ARSENAL MATEMÁTICO Y DE PARSEO ---
+# ndarray: Requerido por 'ort' para crear y leer los tensores multidimensionales
+ndarray = "0.15.6"
+# serde: Para parsear el JSONL a la velocidad de la luz directamente desde el mmap
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[patch.crates-io]
+graph_builder = { path = "./local_deps/graph_builder_fix" }

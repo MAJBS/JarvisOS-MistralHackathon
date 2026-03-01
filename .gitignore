@@ -1,0 +1,43 @@
+# 1. BLOQUEAR TODO EL UNIVERSO POR DEFECTO
+*
+
+# 2. PERMITIR CARPETAS (Para que Git pueda buscar código dentro)
+!*/
+
+# 3. RESCATAR SOLO EL CÓDIGO FUENTE (Tu propiedad intelectual)
+!*.kt
+!*.java
+!*.rs
+!*.cpp
+!*.c
+!*.cc
+!*.h
+!*.hpp
+!*.xml
+!*.aidl
+!*.kts
+!*.toml
+!*.properties
+!*.pro
+!*.gradle
+!*.py
+!*.ps1
+!*.bat
+!*.sh
+!README.md
+!LICENSE
+!.gitignore
+
+# 4. VOLVER A BLOQUEAR CARPETAS DE BASURA ESPECÍFICAS
+# (Por si acaso alguna regla anterior las abrió)
+build/
+.gradle/
+.idea/
+.cxx/
+target/
+captures/
+.externalNativeBuild/
+*/build/
+*/.gradle/
+*/target/
+*/.cxx/

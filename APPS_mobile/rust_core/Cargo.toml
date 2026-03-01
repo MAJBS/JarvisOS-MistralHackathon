@@ -1,0 +1,23 @@
+[package]
+name = "rust_core"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+jni = "0.21.1"
+simsimd = "4.4.0"  
+faer = "0.17.1"    
+log = "0.4"
+android_logger = "0.13"
+
+# Usamos los bindings directos de C++ que tienen TODO (incluyendo ECAPA)
+sherpa-rs-sys = { git = "https://github.com/thewh1teagle/sherpa-rs" }
+
+[profile.release]
+lto = "fat"
+opt-level = "z"
+strip = "symbols"
+codegen-units = 1
